@@ -1,5 +1,12 @@
-import { DateTime } from 'luxon'
-import { BaseModel, column, hasMany, HasMany, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm'
+import { DateTime } from 'luxon';
+import {
+  BaseModel,
+  column,
+  hasMany,
+  HasMany,
+  manyToMany,
+  ManyToMany
+} from '@ioc:Adonis/Lucid/Orm';
 import Recipe from 'App/Models/Recipe';
 import Comment from 'App/Models/Comment';
 
@@ -31,11 +38,11 @@ export default class User extends BaseModel {
   @column.dateTime()
   public deletedAt: DateTime
 
-  @hasMany(() => Recipe, { foreignKey: 'authorId'})
+  @hasMany(() => Recipe, { foreignKey: 'authorId' })
   public recipes: HasMany<typeof Recipe>
 
   @manyToMany(() => Recipe, {
-    pivotTable: 'users_favorite_recipes',
+    pivotTable: 'recipe_favorite_user',
   })
   public favoriteRecipes: ManyToMany<typeof Recipe>
 

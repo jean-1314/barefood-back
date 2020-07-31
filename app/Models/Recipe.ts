@@ -18,13 +18,13 @@ export default class Recipe extends BaseModel {
   public image: string
 
   @column()
-  public details: []
+  public steps: string[]
 
   @column()
-  public ingredients: JSON
+  public ingredients: string
 
   @column()
-  public info: JSON
+  public info: string
 
   @column()
   public isHidden: boolean
@@ -41,11 +41,13 @@ export default class Recipe extends BaseModel {
   @column.dateTime()
   public deletedAt: DateTime
 
-  @belongsTo(() => User)
+  @belongsTo(() => User, {
+    foreignKey: 'authorId',
+  })
   public user: BelongsTo<typeof User>
 
   @manyToMany(() => User, {
-    pivotTable: 'users_favorite_recipes',
+    pivotTable: 'recipe_favorite_user',
   })
   public userFavorites: ManyToMany<typeof User>
 

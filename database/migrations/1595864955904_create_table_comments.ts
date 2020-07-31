@@ -10,6 +10,7 @@ export default class Comments extends BaseSchema {
       table.string('text', 1000).notNullable()
       table.integer('parent_id')
       table.timestamps(true)
+      table.dateTime('deleted_at')
     })
   }
 

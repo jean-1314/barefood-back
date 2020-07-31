@@ -9,6 +9,7 @@ export default class Categories extends BaseSchema {
       table.uuid('uid').unique().notNullable()
       table.string('name').notNullable()
       table.timestamps(true)
+      table.dateTime('deleted_at')
     })
   }
 
