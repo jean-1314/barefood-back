@@ -6,14 +6,16 @@ export default class UserSeeder extends BaseSeeder {
 
   public async run () {
     await UserFactory
+      .with('comments', 3)
       .with('recipes', 2,
         (recipe) =>{
           recipe.with('categories', 1);
           recipe.with('userFavorites', 2);
-          recipe.with('comments', 2);
+          recipe.with('comments', 2, (comment) => {
+            comment.with('user', 1)
+          });
         }
       )
-      .with('comments', 3)
       .createMany(3)
   }
 }

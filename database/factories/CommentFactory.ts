@@ -11,5 +11,5 @@ export default Factory
     }
   })
   .relation('recipes', () => RecipeFactory)
-  .relation('users', () => UserFactory)
+  .relation('user', () => UserFactory)
   .build();

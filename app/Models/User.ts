@@ -1,11 +1,13 @@
 import { DateTime } from 'luxon';
+import Hash from '@ioc:Adonis/Core/Hash';
 import {
   BaseModel,
   column,
   hasMany,
   HasMany,
   manyToMany,
-  ManyToMany
+  ManyToMany,
+  beforeSave
 } from '@ioc:Adonis/Lucid/Orm';
 import Recipe from 'App/Models/Recipe';
 import Comment from 'App/Models/Comment';
@@ -46,6 +48,13 @@ export default class User extends BaseModel {
   })
   public favoriteRecipes: ManyToMany<typeof Recipe>
 
-  @manyToMany(() => Comment)
-  public comments: ManyToMany<typeof Comment>
+  @hasMany(() => Comment)
+  public comments: HasMany<typeof Comment>
+
+  @beforeSave()
+  public static async hashPassword (user: User) {
+    if (user.$dirty.password) {
+      user.password = await Hash.make(user.password)
+    }
+  }
 }
