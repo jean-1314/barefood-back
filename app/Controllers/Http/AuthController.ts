@@ -50,7 +50,9 @@ export default class AuthController {
       await auth.attempt(email, password);
       message = 'login successful';
     } catch (e) {
-      message = e.message || e;
+      message = e.message.includes('E_INVALID_AUTH')
+        ? 'Invalid e-mail or password'
+        : e.message || e;
     } finally {
       return message;
     }
@@ -167,5 +169,8 @@ export default class AuthController {
     return { status: 'ok' };
   }
 
-  public async me() {}
+  public async me({ auth }: HttpContextContract) {
+    const user = await auth.authenticate();
+    return user;
+  }
 }

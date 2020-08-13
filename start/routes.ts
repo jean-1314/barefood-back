@@ -36,6 +36,8 @@ Route.group(() => {
   Route.post('/forgot', 'AuthController.forgot');
   Route.post('/reset', 'AuthController.reset');
   Route.post('/signup', 'AuthController.signup');
-  Route.get('/me', 'AuthController.me');
+  Route
+    .get('/me', 'AuthController.me')
+    .middleware('auth');
 })
   .prefix('/api/v1');
