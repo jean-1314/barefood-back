@@ -52,6 +52,16 @@
     picomatch "^2.2.2"
     slash "^3.0.0"
 
+"@adonisjs/auth@^4.3.1":
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/@adonisjs/auth/-/auth-4.3.1.tgz#45d6838672a88ef2c157bf13c5687586d7a51769"
+  integrity sha512-GySDwwm7YUCS/hw3AxCLkJK3zrYEK7D9JKLnDI405wpFNt86T/vpzzjzB7UnNdsL4LQqRh9mATPpkePu7L4f4g==
+  dependencies:
+    "@poppinss/hooks" "^1.1.1"
+    "@poppinss/utils" "^2.5.2"
+    luxon "^1.24.1"
+    pluralize "^8.0.0"
+
 "@adonisjs/bodyparser@^4.0.4":
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/@adonisjs/bodyparser/-/bodyparser-4.0.5.tgz#4a9506925f72e38e43e457b9a3afadc85f662c5e"
@@ -210,6 +220,16 @@
     cuid "^2.1.8"
     jest-worker "^26.0.0"
 
+"@adonisjs/session@^3.0.8":
+  version "3.0.8"
+  resolved "https://registry.yarnpkg.com/@adonisjs/session/-/session-3.0.8.tgz#e60fef91f430419565b45e2cc79af46cb367947c"
+  integrity sha512-qj4WlmF8IKtVLY+3vvQza9UalvE28DKXtCeUjJ+GE3lLwquoBfbc7EtBvYymo+q07/ldz8oa3Ve+DL3QdUK4QA==
+  dependencies:
+    "@poppinss/utils" "^2.5.2"
+    cuid "^2.1.8"
+    fs-extra "^9.0.1"
+    ms "^2.1.2"
+
 "@adonisjs/sink@^3.0.2":
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@adonisjs/sink/-/sink-3.0.2.tgz#a3dd6dff30ae53a578f7bb7f61ed738ba9981253"
@@ -349,7 +369,7 @@
     figures "^3.2.0"
     string-width "^4.2.0"
 
-"@poppinss/hooks@^1.0.5":
+"@poppinss/hooks@^1.0.5", "@poppinss/hooks@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@poppinss/hooks/-/hooks-1.1.1.tgz#201414a61eadd9bcc8bfcc611648bcbbf67848f1"
   integrity sha512-QJA8dMK15XJCkLW0fW4Jk9zlXQ1ZM7JMcj0MbzLOtveZZlA7QINw/uKkjs9X3xR+AHrGWa5kOMQFxEPfkvJvjQ==
@@ -367,7 +387,7 @@
     "@poppinss/colors" "^2.0.1"
     enquirer "^2.3.6"
 
-"@poppinss/utils@^2.2.0", "@poppinss/utils@^2.2.6", "@poppinss/utils@^2.2.7", "@poppinss/utils@^2.3.0", "@poppinss/utils@^2.5.0", "@poppinss/utils@^2.5.1":
+"@poppinss/utils@^2.2.0", "@poppinss/utils@^2.2.6", "@poppinss/utils@^2.2.7", "@poppinss/utils@^2.3.0", "@poppinss/utils@^2.5.0", "@poppinss/utils@^2.5.1", "@poppinss/utils@^2.5.2":
   version "2.5.2"
   resolved "https://registry.yarnpkg.com/@poppinss/utils/-/utils-2.5.2.tgz#0ed740234cb82f62a7d14ceab39b17b5d520d76c"
   integrity sha512-NrBtC977jTSyQdkH2YskEsUmJsu7rpZpCf+NZao6wkq/ANaydkVIFdYUmKGd2/K0xzZ/YZmZ+mUtI0m8VlaFFg==

@@ -21,11 +21,21 @@
 import Route from '@ioc:Adonis/Core/Route';
 import HealthCheck from '@ioc:Adonis/Core/HealthCheck';
 
-Route.get('/', async () => {
-  return { hello: 'world' };
-});
-
 Route.get('health', async ({ response }) => {
   const report = await HealthCheck.getReport();
   return report.healthy ? response.ok(report) : response.badRequest(report);
 });
+
+Route.group(() => {
+  Route
+    .resource('recipes', 'RecipesController')
+    .apiOnly();
+
+  Route.post('/login', 'AuthController.login');
+  Route.post('/logout', 'AuthController.logout');
+  Route.post('/forgot', 'AuthController.forgot');
+  Route.post('/reset', 'AuthController.reset');
+  Route.post('/signup', 'AuthController.signup');
+  Route.get('/me', 'AuthController.me');
+})
+  .prefix('/api/v1');

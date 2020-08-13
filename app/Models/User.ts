@@ -7,7 +7,7 @@ import {
   HasMany,
   manyToMany,
   ManyToMany,
-  beforeSave
+  beforeSave,
 } from '@ioc:Adonis/Lucid/Orm';
 import Recipe from 'App/Models/Recipe';
 import Comment from 'App/Models/Comment';
@@ -30,6 +30,9 @@ export default class User extends BaseModel {
 
   @column()
   public avatar: string
+
+  @column()
+  public rememberMeToken : string
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

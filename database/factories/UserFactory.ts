@@ -10,7 +10,8 @@ export default Factory
       email: `${faker.name.lastName().toLowerCase()}_${faker.internet.email()}`,
       password: faker.internet.password(),
       name: faker.name.findName(),
-      avatar: faker.internet.avatar()
+      avatar: faker.internet.avatar(),
+      rememberMeToken: faker.random.uuid()
     }
   })
   .relation('recipes', () => RecipeFactory)

@@ -11,6 +11,7 @@ export default class Users extends BaseSchema {
       table.string('password').notNullable()
       table.string('name').notNullable()
       table.string('avatar')
+      table.string('remember_me_token').nullable()
       table.timestamps(true)
       table.dateTime('deleted_at')
     })
