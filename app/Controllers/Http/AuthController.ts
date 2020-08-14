@@ -1,9 +1,11 @@
-import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
-import { schema, rules } from '@ioc:Adonis/Core/Validator';
-import User from 'App/Models/User';
-import { v4 as uuidv4 } from 'uuid';
-import Database from '@ioc:Adonis/Lucid/Database';
 import crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
+import { schema, rules } from '@ioc:Adonis/Core/Validator';
+import Database from '@ioc:Adonis/Lucid/Database';
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
+import User from 'App/Models/User';
+import UnprocessableEntityException from 'App/Exceptions/UnprocessableEntityException';
+import constants from '../../../utils/constants';
 
 export default class AuthController {
 
@@ -16,7 +18,7 @@ export default class AuthController {
       ]),
       password: schema.string({ trim: true }, [
         rules.required(),
-        rules.regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/),
+        rules.regex(constants.passwordRegex),
       ]),
       name: schema.string({ trim: true }, [
         rules.required(),
@@ -39,15 +41,16 @@ export default class AuthController {
     user.uid = uuidv4();
     await user.save()
 
-    return user.serialize();
+    return { status: 'ok' };
   }
 
   public async login({ auth, request }: HttpContextContract) {
     const email = request.input('email');
     const password = request.input('password');
+    const rememberUser = !request.input('remember_me')
     let message = '';
     try {
-      await auth.attempt(email, password);
+      await auth.attempt(email, password, rememberUser);
       message = 'login successful';
     } catch (e) {
       message = e.message.includes('E_INVALID_AUTH')
@@ -74,7 +77,6 @@ export default class AuthController {
     const validationSchema = schema.create({
       email: schema.string({ trim: true }, [
         rules.email(),
-        rules.exists({ table: 'users', column: 'email' }),
       ]),
     })
 
@@ -82,7 +84,6 @@ export default class AuthController {
       schema: validationSchema,
       messages: {
         'email.email': 'E-mail not valid',
-        'email.exists': 'User does not exist'
       }
     });
 
@@ -92,37 +93,41 @@ export default class AuthController {
       .where('email', userDetails.email)
       .first();
 
-    const token = await crypto.randomBytes(64).toString('base64');
+    if (user) {
+      const token = await crypto.randomBytes(64).toString('base64');
 
-    const date = new Date();
-    const expireDate = await date.setHours(date.getHours() + 1);
+      const date = new Date();
+      const expireDate = await date.setHours(date.getHours() + 1);
 
-    try {
-      await Database.rawQuery(
-        `insert into forgot_password ( user_id, token, expiration, used )
+      try {
+        await Database.rawQuery(
+          `insert into forgot_password ( user_id, token, expiration, used )
           values ( ?, ?, ?, ? )
           on conflict ( user_id ) do update
-          set token = ?, updated_at = ?`,
-        [user.id, token, new Date(expireDate), false, token, new Date()]);
-    } catch(err) {
-      return err;
-    } finally {
-      return { status: 'ok' };
+          set token = ?, expiration = ?, used = ?, updated_at = ?`,
+          [user.id, token, new Date(expireDate), false, token, new Date(expireDate), false, new Date()]);
+      } catch(err) {
+        return err;
+      } finally {
+        return { status: 'ok' };
+      }
+    } else {
+      return { status: 'ok' }; // If user is not found, still returning ok status to prevent bots from fiddling with e-mails
     }
   }
 
-  public async reset({ request, response }: HttpContextContract) {
+  public async reset({ auth, request }: HttpContextContract) {
     const validationSchema = schema.create({
       token: schema.string({ trim: true }, [
         rules.required(),
       ]),
       passwordOne: schema.string({ trim: true }, [
         rules.required(),
-        rules.regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/),
+        rules.regex(constants.passwordRegex),
       ]),
       passwordTwo: schema.string({ trim: true }, [
         rules.required(),
-        rules.regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/),
+        rules.regex(constants.passwordRegex),
       ]),
     });
 
@@ -135,8 +140,7 @@ export default class AuthController {
     const token = passwordDetails.token;
 
     if (passwordOne !== passwordTwo) {
-      response.unprocessableEntity({ message: 'Passwords do not match'});
-      return;
+      throw new UnprocessableEntityException('Passwords do not match', 422, 'E_UNPROCESSABLE_ENTITY_EXCEPTION');
     }
 
     const userToken = await Database
@@ -146,13 +150,11 @@ export default class AuthController {
       .first();
 
     if (!userToken) {
-      response.unprocessableEntity({ message: 'Token does not exist or expired'});
-      return;
+      throw new UnprocessableEntityException('Token does not exist or expired', 422, 'E_UNPROCESSABLE_ENTITY_EXCEPTION');
     }
 
     if ((new Date(userToken.expiration) < new Date()) || userToken.used) {
-      response.unprocessableEntity({ message: 'token does not exist or expired'});
-      return;
+      throw new UnprocessableEntityException('Token does not exist or expired', 422, 'E_UNPROCESSABLE_ENTITY_EXCEPTION');
     }
 
     await Database
@@ -165,12 +167,13 @@ export default class AuthController {
     const user = await User.findByOrFail('id', userToken.user_id);
     user.password = passwordOne;
     await user.save();
-
+    await auth.logout();
     return { status: 'ok' };
   }
 
   public async me({ auth }: HttpContextContract) {
     const user = await auth.authenticate();
-    return user;
+    const { uid, email, name, avatar } = user;
+    return { uid, email, name, avatar };
   }
 }
