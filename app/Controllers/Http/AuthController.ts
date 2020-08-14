@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { schema, rules } from '@ioc:Adonis/Core/Validator';
 import Database from '@ioc:Adonis/Lucid/Database';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
+import Mail from '@ioc:Adonis/Addons/Mail';
+import Env from '@ioc:Adonis/Core/Env';
 import User from 'App/Models/User';
 import UnprocessableEntityException from 'App/Exceptions/UnprocessableEntityException';
 import constants from '../../../utils/constants';
@@ -39,7 +41,14 @@ export default class AuthController {
     user.password = userDetails.password;
     user.name = userDetails.name;
     user.uid = uuidv4();
-    await user.save()
+    await user.save();
+    await Mail.send((message) => {
+      message
+        .from('info@example.com')
+        .to(user.email)
+        .subject('Welcome Onboard!')
+        .text(`Welcome onboard, ${user.name}!`)
+    })
 
     return { status: 'ok' };
   }
@@ -95,7 +104,7 @@ export default class AuthController {
 
     if (user) {
       const token = await crypto.randomBytes(64).toString('base64');
-
+      const url = `${Env.get('FORNTEND_URL')}/reset?token=${token}`;
       const date = new Date();
       const expireDate = await date.setHours(date.getHours() + 1);
 
@@ -106,6 +115,14 @@ export default class AuthController {
           on conflict ( user_id ) do update
           set token = ?, expiration = ?, used = ?, updated_at = ?`,
           [user.id, token, new Date(expireDate), false, token, new Date(expireDate), false, new Date()]);
+
+        await Mail.send((message) => {
+          message
+            .from('info@example.com')
+            .to(user.email)
+            .subject('Password reset token')
+            .html(`<p>Please open the link: <a href="${url}">${url}</a></p>`)
+        })
       } catch(err) {
         return err;
       } finally {
