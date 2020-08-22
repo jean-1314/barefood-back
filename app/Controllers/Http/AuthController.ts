@@ -8,10 +8,11 @@ import Env from '@ioc:Adonis/Core/Env';
 import User from 'App/Models/User';
 import UnprocessableEntityException from 'App/Exceptions/UnprocessableEntityException';
 import constants from '../../../utils/constants';
+import { ReturnedUser } from 'Contracts/Controllers/AuthControllerContracts';
+import { ReturnedStatus } from 'Contracts/Controllers/Shared';
 
 export default class AuthController {
-
-  public async signup({ request }: HttpContextContract) {
+  public async signup ({ request }: HttpContextContract): Promise<ReturnedStatus> {
     const validationSchema = schema.create({
       email: schema.string({ trim: true }, [
         rules.required(),
@@ -25,15 +26,15 @@ export default class AuthController {
       name: schema.string({ trim: true }, [
         rules.required(),
       ]),
-    })
+    });
 
     const userDetails = await request.validate({
       schema: validationSchema,
       messages: {
         'name.required': 'User name required',
         'email.email': 'E-mail not valid',
-        'email.unique': 'User already exists'
-      }
+        'email.unique': 'User already exists',
+      },
     });
 
     const user = new User();
@@ -47,16 +48,16 @@ export default class AuthController {
         .from('info@example.com')
         .to(user.email)
         .subject('Welcome Onboard!')
-        .text(`Welcome onboard, ${user.name}!`)
-    })
+        .text(`Welcome onboard, ${user.name}!`);
+    });
 
     return { status: 'ok' };
   }
 
-  public async login({ auth, request }: HttpContextContract) {
+  public async login ({ auth, request }: HttpContextContract): Promise<string> {
     const email = request.input('email');
     const password = request.input('password');
-    const rememberUser = !request.input('remember_me')
+    const rememberUser = !request.input('remember_me');
     let message = '';
     try {
       await auth.attempt(email, password, rememberUser);
@@ -65,35 +66,33 @@ export default class AuthController {
       message = e.message.includes('E_INVALID_AUTH')
         ? 'Invalid e-mail or password'
         : e.message || e;
-    } finally {
-      return message;
     }
+    return message;
   }
 
-  public async logout({ auth }: HttpContextContract): Promise<any> {
+  public async logout ({ auth }: HttpContextContract): Promise<string> {
     let message = '';
     try {
       await auth.logout();
       message = 'logout successful';
     } catch (e) {
       message = e.message || e;
-    } finally {
-      return message;
     }
+    return message;
   }
 
-  public async forgot({ request }: HttpContextContract) {
+  public async forgot ({ request }: HttpContextContract): Promise<ReturnedStatus> {
     const validationSchema = schema.create({
       email: schema.string({ trim: true }, [
         rules.email(),
       ]),
-    })
+    });
 
     const userDetails = await request.validate({
       schema: validationSchema,
       messages: {
         'email.email': 'E-mail not valid',
-      }
+      },
     });
 
     const user = await Database
@@ -121,19 +120,19 @@ export default class AuthController {
             .from('info@example.com')
             .to(user.email)
             .subject('Password reset token')
-            .html(`<p>Please open the link: <a href="${url}">${url}</a></p>`)
-        })
-      } catch(err) {
+            .html(`<p>Please open the link: <a href="${url}">${url}</a></p>`);
+        });
+      } catch (err) {
         return err;
-      } finally {
-        return { status: 'ok' };
       }
+      return { status: 'ok' };
     } else {
-      return { status: 'ok' }; // If user is not found, still returning ok status to prevent bots from fiddling with e-mails
+      // If user is not found, still returning ok status to prevent bots from fiddling with e-mails
+      return { status: 'ok' };
     }
   }
 
-  public async reset({ auth, request }: HttpContextContract) {
+  public async reset ({ auth, request }: HttpContextContract): Promise<ReturnedStatus> {
     const validationSchema = schema.create({
       token: schema.string({ trim: true }, [
         rules.required(),
@@ -149,7 +148,7 @@ export default class AuthController {
     });
 
     const passwordDetails = await request.validate({
-      schema: validationSchema
+      schema: validationSchema,
     });
 
     const passwordOne = passwordDetails.passwordOne;
@@ -167,17 +166,25 @@ export default class AuthController {
       .first();
 
     if (!userToken) {
-      throw new UnprocessableEntityException('Token does not exist or expired', 422, 'E_UNPROCESSABLE_ENTITY_EXCEPTION');
+      throw new UnprocessableEntityException(
+        'Token does not exist or expired',
+        422,
+        'E_UNPROCESSABLE_ENTITY_EXCEPTION'
+      );
     }
 
     if ((new Date(userToken.expiration) < new Date()) || userToken.used) {
-      throw new UnprocessableEntityException('Token does not exist or expired', 422, 'E_UNPROCESSABLE_ENTITY_EXCEPTION');
+      throw new UnprocessableEntityException(
+        'Token does not exist or expired',
+        422,
+        'E_UNPROCESSABLE_ENTITY_EXCEPTION'
+      );
     }
 
     await Database
       .from('forgot_password')
       .update({
-        used: true
+        used: true,
       })
       .where('user_id', userToken.user_id);
 
@@ -188,7 +195,7 @@ export default class AuthController {
     return { status: 'ok' };
   }
 
-  public async me({ auth }: HttpContextContract) {
+  public async me ({ auth }: HttpContextContract): Promise<ReturnedUser> {
     const user = await auth.authenticate();
     const { uid, email, name, avatar } = user;
     return { uid, email, name, avatar };

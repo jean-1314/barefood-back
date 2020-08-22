@@ -1,5 +1,5 @@
 import Factory from '@ioc:Adonis/Lucid/Factory';
-import Recipe from 'App/Models/Recipe'
+import Recipe from 'App/Models/Recipe';
 import UserFactory from 'Database/factories/UserFactory';
 import CategoryFactory from 'Database/factories/CategoryFactory';
 import CommentFactory from 'Database/factories/CommentFactory';
@@ -21,8 +21,8 @@ export default Factory
         portions: getRandomInt(1, 8),
         time: getRandomInt(5, 24),
       }),
-      is_hidden: faker.random.boolean()
-    }
+      is_hidden: faker.random.boolean(),
+    };
   })
   .relation('user', () => UserFactory)
   .relation('userFavorites', () => UserFactory)

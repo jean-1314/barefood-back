@@ -55,9 +55,9 @@ export default class User extends BaseModel {
   public comments: HasMany<typeof Comment>
 
   @beforeSave()
-  public static async hashPassword (user: User) {
+  public static async hashPassword (user: User): Promise<void> {
     if (user.$dirty.password) {
-      user.password = await Hash.make(user.password)
+      user.password = await Hash.make(user.password);
     }
   }
 }

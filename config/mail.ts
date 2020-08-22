@@ -5,8 +5,8 @@
  * file.
  */
 
-import Env from '@ioc:Adonis/Core/Env'
-import { MailConfig } from '@ioc:Adonis/Addons/Mail'
+import Env from '@ioc:Adonis/Core/Env';
+import { MailConfig } from '@ioc:Adonis/Addons/Mail';
 
 const mailConfig: MailConfig = {
   /*
@@ -49,8 +49,8 @@ const mailConfig: MailConfig = {
       auth: {
         user: Env.get('MAILTRAP_USER') as string,
         pass: Env.get('MAILTRAP_PASSWORD') as string,
-        type: 'login'
-      }
+        type: 'login',
+      },
     },
 
     /*
@@ -105,6 +105,6 @@ const mailConfig: MailConfig = {
       key: Env.get('SPARKPOST_API_KEY') as string,
     },
   },
-}
+};
 
-export default mailConfig
+export default mailConfig;

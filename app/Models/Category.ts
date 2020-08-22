@@ -1,5 +1,5 @@
-import { DateTime } from 'luxon'
-import {BaseModel, column, ManyToMany, manyToMany} from '@ioc:Adonis/Lucid/Orm'
+import { DateTime } from 'luxon';
+import { BaseModel, column, ManyToMany, manyToMany } from '@ioc:Adonis/Lucid/Orm';
 import Recipe from 'App/Models/Recipe';
 
 export default class Category extends BaseModel {

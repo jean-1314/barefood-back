@@ -1,5 +1,5 @@
 import Factory from '@ioc:Adonis/Lucid/Factory';
-import User from 'App/Models/User'
+import User from 'App/Models/User';
 import RecipeFactory from 'Database/factories/RecipeFactory';
 import CommentFactory from 'Database/factories/CommentFactory';
 
@@ -11,8 +11,8 @@ export default Factory
       password: faker.internet.password(),
       name: faker.name.findName(),
       avatar: faker.internet.avatar(),
-      rememberMeToken: faker.random.uuid()
-    }
+      rememberMeToken: faker.random.uuid(),
+    };
   })
   .relation('recipes', () => RecipeFactory)
   .relation('favoriteRecipes', () => RecipeFactory)

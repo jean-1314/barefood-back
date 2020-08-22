@@ -1,10 +1,14 @@
 {
   "root": true,
   "env": {
-    "node": true
+    "node": true,
+    "es6": true
   },
   "extends": [
-    "plugin:adonis/typescriptApp"
+    "eslint:recommended",
+    "plugin:adonis/typescriptApp",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
     "no-dupe-args": "error",
@@ -54,9 +58,14 @@
     "no-const-assign": "error",
     "no-duplicate-imports": "error",
     "no-var": "error",
-    "prefer-template": "error"
+    "prefer-template": "error",
+    "@typescript-eslint/semi": "off"
   },
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "parser": "babel-eslint"
-  }
+  },
+  "plugins": [
+    "@typescript-eslint"
+  ]
 }

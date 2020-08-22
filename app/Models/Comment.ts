@@ -1,5 +1,5 @@
-import { DateTime } from 'luxon'
-import {BaseModel, belongsTo, column, ManyToMany, manyToMany, BelongsTo} from '@ioc:Adonis/Lucid/Orm'
+import { DateTime } from 'luxon';
+import { BaseModel, belongsTo, column, ManyToMany, manyToMany, BelongsTo } from '@ioc:Adonis/Lucid/Orm';
 import User from 'App/Models/User';
 import Recipe from 'App/Models/Recipe';
 
