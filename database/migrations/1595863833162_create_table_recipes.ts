@@ -8,6 +8,7 @@ export default class Recipes extends BaseSchema {
       table.increments('id');
       table.uuid('uid').unique().notNullable();
       table.string('name').notNullable();
+      table.string('slug').notNullable();
       table.string('image');
       table.json('ingredients');
       table.specificType('steps', 'text[]').notNullable();
@@ -15,7 +16,7 @@ export default class Recipes extends BaseSchema {
       table.boolean('is_hidden');
       table.timestamps(true);
       table.dateTime('deleted_at');
-      table.index(['title'], 'title');
+      table.index(['name'], 'name');
     });
   }
 

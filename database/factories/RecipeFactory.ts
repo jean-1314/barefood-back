@@ -4,12 +4,16 @@ import UserFactory from 'Database/factories/UserFactory';
 import CategoryFactory from 'Database/factories/CategoryFactory';
 import CommentFactory from 'Database/factories/CommentFactory';
 import { getRandomInt } from '../../utils/math';
+import { slugify } from '../../utils/string';
 
 export default Factory
   .define(Recipe, ({ faker }) => {
+    const fakeName = faker.lorem.words(getRandomInt(1, 20));
+
     return {
       uid: faker.random.uuid(),
-      name: faker.lorem.words(getRandomInt(1, 20)),
+      name: fakeName,
+      slug: slugify(fakeName),
       image: faker.image.food(),
       ingredients: JSON.stringify({
         [faker.lorem.word()]: faker.lorem.words(getRandomInt(1, 5)),

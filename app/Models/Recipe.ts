@@ -15,6 +15,9 @@ export default class Recipe extends BaseModel {
   public name: string
 
   @column()
+  public slug: string
+
+  @column()
   public image: string
 
   @column()
