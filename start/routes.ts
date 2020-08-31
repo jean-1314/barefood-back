@@ -27,9 +27,12 @@ Route.get('health', async ({ response }) => {
 });
 
 Route.group(() => {
-  Route
-    .resource('recipes', 'RecipesController')
-    .apiOnly();
+  Route.group(() => {
+    Route
+      .resource('/', 'RecipesController')
+      .apiOnly();
+    Route.get('/search', 'RecipesController.search');
+  }).prefix('recipes');
 
   Route.post('/login', 'AuthController.login');
   Route.post('/logout', 'AuthController.logout');

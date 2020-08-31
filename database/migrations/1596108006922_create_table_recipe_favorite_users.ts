@@ -8,8 +8,6 @@ export default class CreateTableRecipeFavoriteUsers extends BaseSchema {
       table.increments('id');
       table.integer('user_id');
       table.integer('recipe_id');
-      table.timestamps(true);
-      table.dateTime('deleted_at');
       table.foreign('user_id').references('id').inTable('users');
       table.foreign('recipe_id').references('id').inTable('recipes');
     });

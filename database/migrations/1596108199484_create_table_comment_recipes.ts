@@ -8,8 +8,6 @@ export default class CommentRecipes extends BaseSchema {
       table.increments('id');
       table.integer('comment_id');
       table.integer('recipe_id');
-      table.timestamps(true);
-      table.dateTime('deleted_at');
       table.foreign('comment_id').references('id').inTable('comments');
       table.foreign('recipe_id').references('id').inTable('recipes');
     });

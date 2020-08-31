@@ -8,8 +8,6 @@ export default class CreateTableCategoryRecipes extends BaseSchema {
       table.increments('id');
       table.integer('category_id');
       table.integer('recipe_id');
-      table.timestamps(true);
-      table.dateTime('deleted_at');
       table.foreign('category_id').references('id').inTable('categories');
       table.foreign('recipe_id').references('id').inTable('recipes');
     });
