@@ -32,7 +32,7 @@ export default class User extends BaseModel {
   public avatar: string
 
   @column()
-  public rememberMeToken : string
+  public rememberMeToken: string
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

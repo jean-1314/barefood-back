@@ -29,7 +29,6 @@
     "no-useless-return": "error",
     "no-with": "error",
     "radix": "error",
-    "init-declarations": ["error", "always"],
     "no-unused-vars": "error",
     "no-use-before-define": "error",
     "brace-style": "error",
