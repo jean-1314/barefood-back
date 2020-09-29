@@ -29,7 +29,7 @@ Route.get('health', async ({ response }) => {
 Route.group(() => {
   Route.group(() => {
     Route
-      .resource('/', 'RecipesController')
+      .resource('', 'RecipesController')
       .apiOnly();
     Route.get('/search', 'RecipesController.search');
   }).prefix('recipes');
