@@ -40,7 +40,7 @@ export default class RecipesController {
 
   public async show ({ params, auth }: HttpContextContract) {
     let isAuthor = false;
-    const isAuthenticated = auth.isLoggedIn;
+    const isAuthenticated = auth.isAuthenticated;
 
     const recipe = await Recipe
       .query()

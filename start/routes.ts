@@ -30,6 +30,7 @@ Route.group(() => {
   Route.group(() => {
     Route
       .resource('', 'RecipesController')
+      .middleware({ show: ['silentAuth'] })
       .apiOnly();
     Route.get('/search', 'RecipesController.search');
   }).prefix('recipes');
