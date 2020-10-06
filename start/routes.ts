@@ -35,6 +35,10 @@ Route.group(() => {
     Route.get('/search', 'RecipesController.search');
   }).prefix('recipes');
 
+  Route.resource('recipes.comments', 'CommentsController')
+    // .middleware({ index: ['silentAuth'] })
+    .apiOnly();
+
   Route.post('/login', 'AuthController.login');
   Route.post('/logout', 'AuthController.logout');
   Route.post('/forgot', 'AuthController.forgot');

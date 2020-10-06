@@ -6,7 +6,6 @@ export default class UserSeeder extends BaseSeeder {
 
   public async run (): Promise<void> {
     await UserFactory
-      .with('comments', 3)
       .with('recipes', 2,
         (recipe) => {
           recipe.with('categories', 1);

@@ -1,5 +1,14 @@
 import { DateTime } from 'luxon';
-import { BaseModel, column, belongsTo, BelongsTo, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm';
+import {
+  BaseModel,
+  column,
+  belongsTo,
+  BelongsTo,
+  manyToMany,
+  ManyToMany,
+  hasMany,
+  HasMany,
+} from '@ioc:Adonis/Lucid/Orm';
 import User from 'App/Models/User';
 import Comment from 'App/Models/Comment';
 import Category from 'App/Models/Category';
@@ -54,8 +63,8 @@ export default class Recipe extends BaseModel {
   })
   public userFavorites: ManyToMany<typeof User>
 
-  @manyToMany(() => Comment)
-  public comments: ManyToMany<typeof Comment>
+  @hasMany(() => Comment)
+  public comments: HasMany<typeof Comment>
 
   @manyToMany(() => Category)
   public categories: ManyToMany<typeof Category>

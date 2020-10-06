@@ -11,6 +11,7 @@ export default class Comments extends BaseSchema {
       table.integer('parent_id');
       table.timestamps(true);
       table.dateTime('deleted_at');
+      table.index(['updated_at'], 'updated_at');
     });
   }
 
