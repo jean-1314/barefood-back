@@ -1,6 +1,11 @@
+import { v4 as uuidv4 } from 'uuid';
+import sanitizeHtml from 'sanitize-html';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
+import { rules, schema } from '@ioc:Adonis/Core/Validator';
 import Comment from 'App/Models/Comment';
+import NotFoundException from 'App/Exceptions/NotFoundException';
 import { ResultComment, ResultUser } from 'Contracts/Controllers/CommentsControllerContracts';
+import { ReturnedStatus } from 'Contracts/Controllers/Shared';
 
 export default class CommentsController {
   public async index ({ request, params }: HttpContextContract) {
@@ -60,5 +65,43 @@ export default class CommentsController {
     });
 
     return { data: result, meta };
+  }
+
+  public async store ({ request, params, auth }: HttpContextContract): Promise<ReturnedStatus> {
+    if (!params.recipe_id) {
+      throw new NotFoundException(
+        'Recipe not found',
+        404,
+        'E_NOT_FOUND_EXCEPTION'
+      );
+    }
+
+    const validationSchema = schema.create({
+      text: schema.string({ trim: true }, [
+        rules.required(),
+        rules.maxLength(500),
+        rules.minLength(1),
+      ]),
+    });
+
+    const commentDetails = await request.validate({
+      schema: validationSchema,
+      messages: {
+        'text.required': 'Comment not entered',
+        'text.maxLength': 'Comment exceeds maximum length of 500 characters',
+        'text.minLength': 'Comment is below minimum length of 1 character',
+      },
+    });
+
+    const comment = new Comment();
+    comment.uid = uuidv4();
+    comment.text = sanitizeHtml(commentDetails.text);
+    comment.parentId = request.input('parent_id') || null;
+    comment.recipeId = params.recipe_id;
+    comment.userId = auth.user?.id || 1;
+
+    await comment.save();
+
+    return { status: 'ok' };
   }
 }

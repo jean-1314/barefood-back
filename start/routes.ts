@@ -36,7 +36,7 @@ Route.group(() => {
   }).prefix('recipes');
 
   Route.resource('recipes.comments', 'CommentsController')
-    // .middleware({ index: ['silentAuth'] })
+    .middleware({ store: ['auth'] })
     .apiOnly();
 
   Route.post('/login', 'AuthController.login');
