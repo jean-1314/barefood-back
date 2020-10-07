@@ -36,7 +36,8 @@ Route.group(() => {
   }).prefix('recipes');
 
   Route.resource('recipes.comments', 'CommentsController')
-    .middleware({ store: ['auth'] })
+    .middleware({ store: ['auth'], update: ['auth'] })
+    .except(['show', 'destroy'])
     .apiOnly();
 
   Route.post('/login', 'AuthController.login');
