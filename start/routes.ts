@@ -20,6 +20,7 @@
 
 import Route from '@ioc:Adonis/Core/Route';
 import HealthCheck from '@ioc:Adonis/Core/HealthCheck';
+import Application from '@ioc:Adonis/Core/Application';
 
 Route.get('health', async ({ response }) => {
   const report = await HealthCheck.getReport();
@@ -51,3 +52,7 @@ Route.group(() => {
     .middleware('auth');
 })
   .prefix('/api/v1');
+
+Route.get('storage/recipe_images/:filename', async ({ response, params }) => {
+  response.download(Application.publicPath('/storage/recipe_images', params.filename));
+});

@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import sanitizeHtml from 'sanitize-html';
+import Application from '@ioc:Adonis/Core/Application';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import { rules, schema } from '@ioc:Adonis/Core/Validator';
 import Recipe from 'App/Models/Recipe';
@@ -161,6 +162,12 @@ export default class RecipesController {
     recipe.info = recipeData.info;
     recipe.isHidden = recipeData.isHidden;
     recipe.authorId = auth.user?.id || 1;
+
+    if (recipeData.image) {
+      const name = `${new Date().getTime()}-${recipe.slug}.${recipeData.image.extname}`;
+      await recipeData.image.move(Application.publicPath('storage/recipe_images'), { name });
+      recipe.image = `/storage/recipe_images/${name}`;
+    }
 
     await recipe.save();
 
