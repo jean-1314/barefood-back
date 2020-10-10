@@ -10,7 +10,7 @@ export default class Recipes extends BaseSchema {
       table.string('name').notNullable();
       table.string('slug').notNullable();
       table.string('image');
-      table.json('ingredients');
+      table.specificType('ingredients', 'text[]').notNullable();
       table.specificType('steps', 'text[]').notNullable();
       table.json('info');
       table.boolean('is_hidden');

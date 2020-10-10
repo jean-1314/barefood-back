@@ -1,6 +1,11 @@
+import { v4 as uuidv4 } from 'uuid';
+import sanitizeHtml from 'sanitize-html';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
+import { rules, schema } from '@ioc:Adonis/Core/Validator';
 import Recipe from 'App/Models/Recipe';
 import NotFoundException from 'App/Exceptions/NotFoundException';
+import { ReturnedStatus } from 'Contracts/Controllers/Shared';
+import { slugify } from '../../../utils/string';
 
 export default class RecipesController {
   public async index ({ request }: HttpContextContract) {
@@ -88,5 +93,81 @@ export default class RecipesController {
       .whereRaw('to_tsvector(name) @@ plainto_tsquery(?)', [`${q}%`])
       .andWhere('is_hidden', false)
       .limit(5);
+  }
+
+  public async store ({ request, auth }: HttpContextContract): Promise<ReturnedStatus> {
+    const validationSchema = schema.create({
+      name: schema.string({ trim: true }, [
+        rules.required(),
+        rules.maxLength(255),
+        rules.minLength(1),
+      ]),
+      image: schema.file.optional({
+        size: '100kb',
+        extnames: ['jpg', 'jpeg'],
+      }),
+      steps: schema.array([
+        rules.required(),
+        rules.minLength(1),
+      ]).members(
+        schema.string()
+      ),
+      ingredients: schema.array([
+        rules.required(),
+        rules.minLength(1),
+      ]).members(
+        schema.string()
+      ),
+      info: schema.object().members({
+        portions: schema.number.optional(),
+        time: schema.string.optional(),
+      }),
+      isHidden: schema.boolean([
+        rules.required(),
+      ]),
+      categories: schema.array([
+        rules.required(),
+        rules.minLength(1),
+      ]).members(
+        schema.number()
+      ),
+    });
+
+    const recipeData = await request.validate({
+      schema: validationSchema,
+      messages: {
+        'name.required': 'Name not entered',
+        'name.maxLength': 'Name exceeds maximum length of 255 characters',
+        'name.minLength': 'Name is below minimum length of 1 character',
+        'image.size': 'Image exceeds maximum size of 100kb',
+        'image.extnames': 'Wrong image extname',
+        'steps.required': 'Steps not entered',
+        'steps.minLength': 'Steps length is below minimum length of 1 character',
+        'ingredients.required': 'Ingredients not entered',
+        'ingredients.minLength': 'Ingredients length is below minimum length of 1 character',
+        'isHidden.required': 'isHidden not entered',
+        'categories.required': 'Categories not entered',
+        'categories.minLength': 'Categories length is below minimum length of 1 character',
+      },
+    });
+
+    const recipe = new Recipe();
+
+    recipe.uid = uuidv4();
+    recipe.name = recipeData.name;
+    recipe.slug = slugify(recipeData.name);
+    recipe.steps = recipeData.steps.map(step => sanitizeHtml(step));
+    recipe.ingredients = recipeData.ingredients.map(ingredient => sanitizeHtml(ingredient));
+    recipe.info = recipeData.info;
+    recipe.isHidden = recipeData.isHidden;
+    recipe.authorId = auth.user?.id || 1;
+
+    await recipe.save();
+
+    recipeData.categories.forEach((category) => {
+      recipe.related('categories').attach([category]);
+    });
+
+    return { status: 'ok' };
   }
 }

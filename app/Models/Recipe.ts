@@ -12,6 +12,7 @@ import {
 import User from 'App/Models/User';
 import Comment from 'App/Models/Comment';
 import Category from 'App/Models/Category';
+import { Info } from 'Contracts/Models/RecipeModelContracts';
 
 export default class Recipe extends BaseModel {
   @column({ isPrimary: true })
@@ -33,10 +34,10 @@ export default class Recipe extends BaseModel {
   public steps: string[]
 
   @column()
-  public ingredients: string
+  public ingredients: string[]
 
   @column()
-  public info: string
+  public info: Info
 
   @column()
   public isHidden: boolean

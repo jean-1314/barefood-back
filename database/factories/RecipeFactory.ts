@@ -15,16 +15,16 @@ export default Factory
       name: fakeName,
       slug: slugify(fakeName),
       image: faker.image.food(),
-      ingredients: JSON.stringify({
-        [faker.lorem.word()]: faker.lorem.words(getRandomInt(1, 5)),
-        [faker.lorem.word()]: faker.lorem.words(getRandomInt(1, 5)),
-        [faker.lorem.word()]: faker.lorem.words(getRandomInt(1, 5)),
-      }),
+      ingredients: [
+        faker.lorem.words(getRandomInt(5, 20)),
+        faker.lorem.words(getRandomInt(5, 20)),
+        faker.lorem.words(getRandomInt(5, 20)),
+      ],
       steps: Array(getRandomInt(1, 10)).fill(faker.lorem.paragraph(3)),
-      info: JSON.stringify({
+      info: {
         portions: getRandomInt(1, 8),
         time: getRandomInt(5, 24),
-      }),
+      },
       is_hidden: faker.random.boolean(),
     };
   })
