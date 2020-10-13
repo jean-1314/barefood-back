@@ -1,12 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
-import sanitizeHtml from 'sanitize-html';
-import Application from '@ioc:Adonis/Core/Application';
+import { rules, schema, validator } from '@ioc:Adonis/Core/Validator';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Recipe from 'App/Models/Recipe';
-import NotFoundException from 'App/Exceptions/NotFoundException';
 import RecipeValidator from 'App/Validators/RecipeValidator';
+import NotFoundException from 'App/Exceptions/NotFoundException';
+import ForbiddenException from 'App/Exceptions/ForbiddenException';
 import { ReturnedStatus } from 'Contracts/Controllers/Shared';
-import { slugify } from '../../../utils/string';
+import addRecipeData from 'App/Controllers/utils/addRecipeData';
 
 export default class RecipesController {
   public async index ({ request }: HttpContextContract) {
@@ -101,26 +101,61 @@ export default class RecipesController {
 
     const recipe = new Recipe();
 
+    await addRecipeData(recipe, recipeData);
     recipe.uid = uuidv4();
-    recipe.name = recipeData.name;
-    recipe.slug = slugify(recipeData.name);
-    recipe.steps = recipeData.steps.map(step => sanitizeHtml(step));
-    recipe.ingredients = recipeData.ingredients.map(ingredient => sanitizeHtml(ingredient));
-    recipe.info = recipeData.info;
-    recipe.isHidden = recipeData.isHidden;
     recipe.authorId = auth.user?.id || 1;
-
-    if (recipeData.image) {
-      const name = `${new Date().getTime()}-${recipe.slug}.${recipeData.image.extname}`;
-      await recipeData.image.move(Application.publicPath('storage/recipe_images'), { name });
-      recipe.image = `/storage/recipe_images/${name}`;
-    }
 
     await recipe.save();
 
     recipeData.categories.forEach((category) => {
       recipe.related('categories').attach([category]);
     });
+
+    return { status: 'ok' };
+  }
+
+  public async update ({ request, auth }: HttpContextContract): Promise<ReturnedStatus> {
+    const paramsValidationSchema = schema.create({
+      id: schema.number([
+        rules.exists({
+          table: 'recipes',
+          column: 'id',
+        }),
+      ]),
+    });
+
+    const paramsData = {
+      id: request.ctx?.params.id,
+    };
+
+    try {
+      await validator.validate({
+        schema: paramsValidationSchema,
+        data: paramsData,
+      });
+    } catch (e) {
+      throw new NotFoundException(
+        `Not found: ${e}`,
+        404,
+        'E_NOT_FOUND_EXCEPTION'
+      );
+    }
+
+    const recipeData = await request.validate(RecipeValidator);
+    const recipe = await Recipe.findOrFail(paramsData.id);
+    const currentUser = await auth.user;
+
+    if (currentUser?.id !== recipe.authorId) {
+      throw new ForbiddenException(
+        'Not allowed',
+        403,
+        'E_FORBIDDEN_EXCEPTION'
+      );
+    }
+
+    await addRecipeData(recipe, recipeData);
+
+    await recipe.save();
 
     return { status: 'ok' };
   }

@@ -7,6 +7,7 @@ import CommentValidator from 'App/Validators/CommentValidator';
 import NotFoundException from 'App/Exceptions/NotFoundException';
 import { ResultComment, ResultUser } from 'Contracts/Controllers/CommentsControllerContracts';
 import { ReturnedStatus } from 'Contracts/Controllers/Shared';
+import ForbiddenException from 'App/Exceptions/ForbiddenException';
 
 export default class CommentsController {
   public async index ({ request, params }: HttpContextContract) {
@@ -109,7 +110,7 @@ export default class CommentsController {
     return { status: 'ok' };
   }
 
-  public async update ({ request }: HttpContextContract): Promise<ReturnedStatus> {
+  public async update ({ request, auth }: HttpContextContract): Promise<ReturnedStatus> {
     const paramsValidationSchema = schema.create({
       recipeId: schema.number([
         rules.exists({
@@ -144,8 +145,17 @@ export default class CommentsController {
     }
 
     const commentDetails = await request.validate(CommentValidator);
-
     const comment = await Comment.findOrFail(paramsData.id);
+    const currentUser = await auth.authenticate();
+
+    if (currentUser.id !== comment.userId) {
+      throw new ForbiddenException(
+        'Not allowed',
+        403,
+        'E_FORBIDDEN_EXCEPTION'
+      );
+    }
+
     comment.text = sanitizeHtml(commentDetails.text);
     await comment.save();
 
