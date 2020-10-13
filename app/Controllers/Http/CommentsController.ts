@@ -3,9 +3,10 @@ import sanitizeHtml from 'sanitize-html';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import { rules, schema, validator } from '@ioc:Adonis/Core/Validator';
 import Comment from 'App/Models/Comment';
+import CommentValidator from 'App/Validators/CommentValidator';
+import NotFoundException from 'App/Exceptions/NotFoundException';
 import { ResultComment, ResultUser } from 'Contracts/Controllers/CommentsControllerContracts';
 import { ReturnedStatus } from 'Contracts/Controllers/Shared';
-import NotFoundException from 'App/Exceptions/NotFoundException';
 
 export default class CommentsController {
   public async index ({ request, params }: HttpContextContract) {
@@ -94,22 +95,7 @@ export default class CommentsController {
       );
     }
 
-    const validationSchema = schema.create({
-      text: schema.string({ trim: true }, [
-        rules.required(),
-        rules.maxLength(500),
-        rules.minLength(1),
-      ]),
-    });
-
-    const commentDetails = await request.validate({
-      schema: validationSchema,
-      messages: {
-        'text.required': 'Comment not entered',
-        'text.maxLength': 'Comment exceeds maximum length of 500 characters',
-        'text.minLength': 'Comment is below minimum length of 1 character',
-      },
-    });
+    const commentDetails = await request.validate(CommentValidator);
 
     const comment = new Comment();
     comment.uid = uuidv4();
@@ -157,22 +143,7 @@ export default class CommentsController {
       );
     }
 
-    const validationSchema = schema.create({
-      text: schema.string({ trim: true }, [
-        rules.required(),
-        rules.maxLength(500),
-        rules.minLength(1),
-      ]),
-    });
-
-    const commentDetails = await request.validate({
-      schema: validationSchema,
-      messages: {
-        'text.required': 'Comment not entered',
-        'text.maxLength': 'Comment exceeds maximum length of 500 characters',
-        'text.minLength': 'Comment is below minimum length of 1 character',
-      },
-    });
+    const commentDetails = await request.validate(CommentValidator);
 
     const comment = await Comment.findOrFail(paramsData.id);
     comment.text = sanitizeHtml(commentDetails.text);

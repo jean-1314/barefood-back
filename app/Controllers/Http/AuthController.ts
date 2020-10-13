@@ -1,41 +1,20 @@
 import crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
-import { schema, rules } from '@ioc:Adonis/Core/Validator';
 import Database from '@ioc:Adonis/Lucid/Database';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Mail from '@ioc:Adonis/Addons/Mail';
 import Env from '@ioc:Adonis/Core/Env';
 import User from 'App/Models/User';
+import SignupValidator from 'App/Validators/Auth/SignupValidator';
+import ForgotPasswordValidator from 'App/Validators/Auth/ForgotPasswordValidator';
+import ResetPasswordValidator from 'App/Validators/Auth/ResetPasswordValidator';
 import UnprocessableEntityException from 'App/Exceptions/UnprocessableEntityException';
-import constants from '../../../utils/constants';
 import { ReturnedUser } from 'Contracts/Controllers/AuthControllerContracts';
 import { ReturnedStatus } from 'Contracts/Controllers/Shared';
 
 export default class AuthController {
   public async signup ({ request }: HttpContextContract): Promise<ReturnedStatus> {
-    const validationSchema = schema.create({
-      email: schema.string({ trim: true }, [
-        rules.required(),
-        rules.email(),
-        rules.unique({ table: 'users', column: 'email' }),
-      ]),
-      password: schema.string({ trim: true }, [
-        rules.required(),
-        rules.regex(constants.passwordRegex),
-      ]),
-      name: schema.string({ trim: true }, [
-        rules.required(),
-      ]),
-    });
-
-    const userDetails = await request.validate({
-      schema: validationSchema,
-      messages: {
-        'name.required': 'User name required',
-        'email.email': 'E-mail not valid',
-        'email.unique': 'User already exists',
-      },
-    });
+    const userDetails = await request.validate(SignupValidator);
 
     const user = new User();
     user.email = userDetails.email;
@@ -82,18 +61,7 @@ export default class AuthController {
   }
 
   public async forgot ({ request }: HttpContextContract): Promise<ReturnedStatus> {
-    const validationSchema = schema.create({
-      email: schema.string({ trim: true }, [
-        rules.email(),
-      ]),
-    });
-
-    const userDetails = await request.validate({
-      schema: validationSchema,
-      messages: {
-        'email.email': 'E-mail not valid',
-      },
-    });
+    const userDetails = await request.validate(ForgotPasswordValidator);
 
     const user = await Database
       .from('users')
@@ -103,7 +71,7 @@ export default class AuthController {
 
     if (user) {
       const token = await crypto.randomBytes(64).toString('base64');
-      const url = `${Env.get('FORNTEND_URL')}/reset?token=${token}`;
+      const url = `${Env.get('FRONTEND_URL')}/reset?token=${token}`;
       const date = new Date();
       const expireDate = await date.setHours(date.getHours() + 1);
 
@@ -133,23 +101,7 @@ export default class AuthController {
   }
 
   public async reset ({ auth, request }: HttpContextContract): Promise<ReturnedStatus> {
-    const validationSchema = schema.create({
-      token: schema.string({ trim: true }, [
-        rules.required(),
-      ]),
-      passwordOne: schema.string({ trim: true }, [
-        rules.required(),
-        rules.regex(constants.passwordRegex),
-      ]),
-      passwordTwo: schema.string({ trim: true }, [
-        rules.required(),
-        rules.regex(constants.passwordRegex),
-      ]),
-    });
-
-    const passwordDetails = await request.validate({
-      schema: validationSchema,
-    });
+    const passwordDetails = await request.validate(ResetPasswordValidator);
 
     const passwordOne = passwordDetails.passwordOne;
     const passwordTwo = passwordDetails.passwordTwo;
