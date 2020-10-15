@@ -6,6 +6,7 @@ import UserValidator from 'App/Validators/UserValidator';
 import ForbiddenException from 'App/Exceptions/ForbiddenException';
 import { ReturnedStatus } from 'Contracts/Controllers/Shared';
 import { latinize } from '../../../utils/string';
+import Recipe from 'App/Models/Recipe';
 
 export default class UsersController {
   public async show ({ params, auth }: HttpContextContract) {
@@ -65,5 +66,30 @@ export default class UsersController {
     await user.save();
 
     return { status: 'ok' };
+  }
+
+  public async getUserRecipes ({ request, params, auth }: HttpContextContract) {
+    const paramsArray = [{ name: 'id', table: 'users', column: 'id' }];
+
+    const paramsData = {
+      id: params.id,
+    };
+
+    await validateQueryParams(paramsArray, paramsData);
+
+    const { page } = request.get();
+
+    return await Recipe
+      .query()
+      .from('recipes')
+      .select(['id', 'name', 'image', 'slug', 'is_hidden', 'author_id'])
+      .where('author_id', params.id)
+      .andWhere((builder) => {
+        if (params.id !== auth?.user?.id) {
+          builder.whereNot('is_hidden', true);
+        }
+      })
+      .orderBy('recipes.updated_at', 'desc')
+      .paginate(page || 1, 20);
   }
 }

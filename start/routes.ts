@@ -44,6 +44,9 @@ Route.group(() => {
       .apiOnly();
   });
 
+  Route.get('/users/:id/recipes', 'UsersController.getUserRecipes')
+    .middleware('silentAuth');
+
   Route.resource('recipes.comments', 'CommentsController')
     .middleware({ store: ['auth'], update: ['auth'] })
     .except(['show', 'destroy'])
