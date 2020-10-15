@@ -1,13 +1,12 @@
 import sanitizeHtml from 'sanitize-html';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
-import { rules, schema, validator } from '@ioc:Adonis/Core/Validator';
 import Comment from 'App/Models/Comment';
 import CommentValidator from 'App/Validators/CommentValidator';
-import NotFoundException from 'App/Exceptions/NotFoundException';
 import { ResultComment } from 'Contracts/Controllers/CommentsControllerContracts';
 import { ResultUser } from 'Contracts/Controllers/UsersControllerContracts';
 import { ReturnedStatus } from 'Contracts/Controllers/Shared';
 import ForbiddenException from 'App/Exceptions/ForbiddenException';
+import validateQueryParams from 'App/Validators/utils/validateQueryParams';
 
 export default class CommentsController {
   public async index ({ request, params }: HttpContextContract) {
@@ -67,32 +66,14 @@ export default class CommentsController {
     return { data: result, meta };
   }
 
-  public async store ({ request, auth }: HttpContextContract): Promise<ReturnedStatus> {
-    const paramsValidationSchema = schema.create({
-      recipeId: schema.number([
-        rules.exists({
-          table: 'recipes',
-          column: 'id',
-        }),
-      ]),
-    });
+  public async store ({ request, params, auth }: HttpContextContract): Promise<ReturnedStatus> {
+    const paramsArray = [{ name: 'recipeId', table: 'recipes', column: 'id' }];
 
     const paramsData = {
-      recipeId: request.ctx?.params.recipe_id,
+      recipeId: params.recipe_id,
     };
 
-    try {
-      await validator.validate({
-        schema: paramsValidationSchema,
-        data: paramsData,
-      });
-    } catch (e) {
-      throw new NotFoundException(
-        `Recipe not found: ${e}`,
-        404,
-        'E_NOT_FOUND_EXCEPTION'
-      );
-    }
+    await validateQueryParams(paramsArray, paramsData);
 
     const commentDetails = await request.validate(CommentValidator);
 
@@ -108,38 +89,17 @@ export default class CommentsController {
   }
 
   public async update ({ request, params, auth }: HttpContextContract): Promise<ReturnedStatus> {
-    const paramsValidationSchema = schema.create({
-      recipeId: schema.number([
-        rules.exists({
-          table: 'recipes',
-          column: 'id',
-        }),
-      ]),
-      id: schema.number([
-        rules.exists({
-          table: 'comments',
-          column: 'id',
-        }),
-      ]),
-    });
+    const paramsArray = [
+      { name: 'recipeId', table: 'recipes', column: 'id' },
+      { name: 'id', table: 'comments', column: 'id' },
+    ];
 
     const paramsData = {
       recipeId: params.recipe_id,
       id: params.id,
     };
 
-    try {
-      await validator.validate({
-        schema: paramsValidationSchema,
-        data: paramsData,
-      });
-    } catch (e) {
-      throw new NotFoundException(
-        `Not found: ${e}`,
-        404,
-        'E_NOT_FOUND_EXCEPTION'
-      );
-    }
+    await validateQueryParams(paramsArray, paramsData);
 
     const commentDetails = await request.validate(CommentValidator);
     const comment = await Comment.findOrFail(paramsData.id);

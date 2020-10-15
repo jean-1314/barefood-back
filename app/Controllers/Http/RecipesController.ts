@@ -1,4 +1,3 @@
-import { rules, schema, validator } from '@ioc:Adonis/Core/Validator';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Recipe from 'App/Models/Recipe';
 import RecipeValidator from 'App/Validators/RecipeValidator';
@@ -6,6 +5,7 @@ import NotFoundException from 'App/Exceptions/NotFoundException';
 import ForbiddenException from 'App/Exceptions/ForbiddenException';
 import { ReturnedStatus } from 'Contracts/Controllers/Shared';
 import addRecipeData from 'App/Controllers/utils/addRecipeData';
+import validateQueryParams from 'App/Validators/utils/validateQueryParams';
 
 export default class RecipesController {
   public async index ({ request }: HttpContextContract) {
@@ -112,31 +112,13 @@ export default class RecipesController {
   }
 
   public async update ({ request, params, auth }: HttpContextContract): Promise<ReturnedStatus> {
-    const paramsValidationSchema = schema.create({
-      id: schema.number([
-        rules.exists({
-          table: 'recipes',
-          column: 'id',
-        }),
-      ]),
-    });
+    const paramsArray = [{ name: 'id', table: 'recipes', column: 'id' }];
 
     const paramsData = {
       id: params.id,
     };
 
-    try {
-      await validator.validate({
-        schema: paramsValidationSchema,
-        data: paramsData,
-      });
-    } catch (e) {
-      throw new NotFoundException(
-        `Not found: ${e}`,
-        404,
-        'E_NOT_FOUND_EXCEPTION'
-      );
-    }
+    await validateQueryParams(paramsArray, paramsData);
 
     const recipeData = await request.validate(RecipeValidator);
     const recipe = await Recipe.findOrFail(paramsData.id);
