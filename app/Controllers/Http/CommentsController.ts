@@ -4,7 +4,8 @@ import { rules, schema, validator } from '@ioc:Adonis/Core/Validator';
 import Comment from 'App/Models/Comment';
 import CommentValidator from 'App/Validators/CommentValidator';
 import NotFoundException from 'App/Exceptions/NotFoundException';
-import { ResultComment, ResultUser } from 'Contracts/Controllers/CommentsControllerContracts';
+import { ResultComment } from 'Contracts/Controllers/CommentsControllerContracts';
+import { ResultUser } from 'Contracts/Controllers/UsersControllerContracts';
 import { ReturnedStatus } from 'Contracts/Controllers/Shared';
 import ForbiddenException from 'App/Exceptions/ForbiddenException';
 
@@ -106,7 +107,7 @@ export default class CommentsController {
     return { status: 'ok' };
   }
 
-  public async update ({ request, auth }: HttpContextContract): Promise<ReturnedStatus> {
+  public async update ({ request, params, auth }: HttpContextContract): Promise<ReturnedStatus> {
     const paramsValidationSchema = schema.create({
       recipeId: schema.number([
         rules.exists({
@@ -123,8 +124,8 @@ export default class CommentsController {
     });
 
     const paramsData = {
-      recipeId: request.ctx?.params.recipe_id,
-      id: request.ctx?.params.id,
+      recipeId: params.recipe_id,
+      id: params.id,
     };
 
     try {

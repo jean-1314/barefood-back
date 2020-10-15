@@ -111,7 +111,7 @@ export default class RecipesController {
     return { status: 'ok' };
   }
 
-  public async update ({ request, auth }: HttpContextContract): Promise<ReturnedStatus> {
+  public async update ({ request, params, auth }: HttpContextContract): Promise<ReturnedStatus> {
     const paramsValidationSchema = schema.create({
       id: schema.number([
         rules.exists({
@@ -122,7 +122,7 @@ export default class RecipesController {
     });
 
     const paramsData = {
-      id: request.ctx?.params.id,
+      id: params.id,
     };
 
     try {

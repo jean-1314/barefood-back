@@ -30,12 +30,19 @@ Route.get('health', async ({ response }) => {
 Route.group(() => {
   Route.group(() => {
     Route
-      .resource('', 'RecipesController')
+      .resource('recipes', 'RecipesController')
       .middleware({ show: ['silentAuth'], store: ['auth'], update: ['auth'] })
       .except(['destroy'])
       .apiOnly();
-    Route.get('/search', 'RecipesController.search');
-  }).prefix('recipes');
+    Route.get('recipes/search', 'RecipesController.search');
+  });
+
+  Route.group(() => {
+    Route.resource('users', 'UsersController')
+      .middleware({ show: ['silentAuth'], update: ['auth'] })
+      .only(['show', 'update'])
+      .apiOnly();
+  });
 
   Route.resource('recipes.comments', 'CommentsController')
     .middleware({ store: ['auth'], update: ['auth'] })
