@@ -1,5 +1,5 @@
 export interface ReturnedUser {
-  uid: string;
+  id: number;
   email: string;
   name: string;
   avatar: string;

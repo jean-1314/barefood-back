@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { rules, schema, validator } from '@ioc:Adonis/Core/Validator';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Recipe from 'App/Models/Recipe';
@@ -25,7 +24,7 @@ export default class RecipesController {
     return await Recipe
       .query()
       .from('recipes')
-      .select(['recipes.id', 'uid', 'name', 'slug', 'image'])
+      .select(['recipes.id', 'name', 'slug', 'image'])
       .join('category_recipe', 'recipes.id', 'category_recipe.recipe_id')
       .where((builder) => {
         if (filter) {
@@ -51,7 +50,7 @@ export default class RecipesController {
     const recipe = await Recipe
       .query()
       .from('recipes')
-      .select('id', 'uid', 'name', 'slug', 'image', 'ingredients', 'steps', 'info', 'is_hidden', 'author_id')
+      .select('id', 'name', 'slug', 'image', 'ingredients', 'steps', 'info', 'is_hidden', 'author_id')
       .where('id', params.id)
       .first();
 
@@ -71,9 +70,8 @@ export default class RecipesController {
     await recipe?.preload('categories');
     await recipe?.preload('user');
 
-    const { uid, name, slug, image, ingredients, steps, info, isHidden, user, categories } = recipe;
+    const { name, slug, image, ingredients, steps, info, isHidden, user, categories } = recipe;
     return {
-      uid,
       name,
       slug,
       image,
@@ -82,14 +80,14 @@ export default class RecipesController {
       info,
       isHidden,
       categories,
-      user: { uid: user.uid, name: user.name, avatar: user.avatar },
+      user: { name: user.name, avatar: user.avatar },
     };
   }
 
   public async search ({ request }: HttpContextContract) {
     const { q } = request.get();
     return Recipe.query()
-      .select(['uid', 'name', 'slug', 'image'])
+      .select(['name', 'slug', 'image'])
       .from('recipes')
       .whereRaw('to_tsvector(name) @@ plainto_tsquery(?)', [`${q}%`])
       .andWhere('is_hidden', false)
@@ -102,7 +100,6 @@ export default class RecipesController {
     const recipe = new Recipe();
 
     await addRecipeData(recipe, recipeData);
-    recipe.uid = uuidv4();
     recipe.authorId = auth.user?.id || 1;
 
     await recipe.save();

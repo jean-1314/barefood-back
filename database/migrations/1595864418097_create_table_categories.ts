@@ -6,7 +6,6 @@ export default class Categories extends BaseSchema {
   public async up (): Promise<void> {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id');
-      table.uuid('uid').unique().notNullable();
       table.string('name').notNullable();
       table.timestamps(true);
       table.dateTime('deleted_at');

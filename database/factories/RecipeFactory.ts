@@ -11,7 +11,6 @@ export default Factory
     const fakeName = faker.lorem.words(getRandomInt(1, 20));
 
     return {
-      uid: faker.random.uuid(),
       name: fakeName,
       slug: slugify(fakeName),
       image: faker.image.food(),

@@ -6,7 +6,6 @@ export default class Comments extends BaseSchema {
   public async up (): Promise<void> {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id');
-      table.uuid('uid').unique().notNullable();
       table.string('text', 1000).notNullable();
       table.integer('parent_id');
       table.timestamps(true);

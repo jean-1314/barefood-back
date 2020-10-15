@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import { v4 as uuidv4 } from 'uuid';
 import Database from '@ioc:Adonis/Lucid/Database';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Mail from '@ioc:Adonis/Addons/Mail';
@@ -20,7 +19,6 @@ export default class AuthController {
     user.email = userDetails.email;
     user.password = userDetails.password;
     user.name = userDetails.name;
-    user.uid = uuidv4();
     await user.save();
     await Mail.send((message) => {
       message
@@ -149,7 +147,7 @@ export default class AuthController {
 
   public async me ({ auth }: HttpContextContract): Promise<ReturnedUser> {
     const user = await auth.authenticate();
-    const { uid, email, name, avatar } = user;
-    return { uid, email, name, avatar };
+    const { id, email, name, avatar } = user;
+    return { id, email, name, avatar };
   }
 }

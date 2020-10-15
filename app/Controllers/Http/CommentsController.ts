@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import sanitizeHtml from 'sanitize-html';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import { rules, schema, validator } from '@ioc:Adonis/Core/Validator';
@@ -50,14 +49,12 @@ export default class CommentsController {
 
       const resultUser: ResultUser = {
         id: userData.id,
-        uid: userData.uid,
         name: userData.name,
         avatar: userData.avatar,
       };
 
       const resultComment: ResultComment = {
         id: comment.id,
-        uid: comment.uid,
         text: comment.text,
         updated_at: comment.updatedAt,
         parent_text: comment.$extras.parent_text,
@@ -99,7 +96,6 @@ export default class CommentsController {
     const commentDetails = await request.validate(CommentValidator);
 
     const comment = new Comment();
-    comment.uid = uuidv4();
     comment.text = sanitizeHtml(commentDetails.text);
     comment.parentId = request.input('parent_id') || null;
     comment.recipeId = paramsData.recipeId;

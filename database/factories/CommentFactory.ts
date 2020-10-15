@@ -6,7 +6,6 @@ import UserFactory from 'Database/factories/UserFactory';
 export default Factory
   .define(Comment, ({ faker }) => {
     return {
-      uid: faker.random.uuid(),
       text: faker.lorem.text(),
     };
   })

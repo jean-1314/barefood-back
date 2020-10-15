@@ -19,9 +19,6 @@ export default class Recipe extends BaseModel {
   public id: number
 
   @column()
-  public uid: string
-
-  @column()
   public name: string
 
   @column()

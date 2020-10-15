@@ -6,7 +6,6 @@ import CommentFactory from 'Database/factories/CommentFactory';
 export default Factory
   .define(User, ({ faker }) => {
     return {
-      uid: faker.random.uuid(),
       email: `${faker.name.lastName().toLowerCase()}_${faker.internet.email()}`,
       password: faker.internet.password(),
       name: faker.name.findName(),
