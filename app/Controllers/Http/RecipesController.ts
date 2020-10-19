@@ -80,15 +80,15 @@ export default class RecipesController {
       info,
       isHidden,
       categories,
-      user: { name: user.name, avatar: user.avatar },
+      user: { id: user.id, name: user.name, avatar: user.avatar },
     };
   }
 
   public async search ({ request }: HttpContextContract) {
     const { q } = request.get();
     return Recipe.query()
-      .select(['name', 'slug', 'image'])
       .from('recipes')
+      .select(['id', 'name', 'slug', 'image', 'author_id'])
       .whereRaw('to_tsvector(name) @@ plainto_tsquery(?)', [`${q}%`])
       .andWhere('is_hidden', false)
       .limit(5);

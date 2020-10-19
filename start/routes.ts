@@ -28,24 +28,26 @@ Route.get('health', async ({ response }) => {
 });
 
 Route.group(() => {
-  Route.group(() => {
-    Route
-      .resource('recipes', 'RecipesController')
-      .middleware({ show: ['silentAuth'], store: ['auth'], update: ['auth'] })
-      .except(['destroy'])
-      .apiOnly();
-    Route.get('recipes/search', 'RecipesController.search');
-  });
+  Route
+    .resource('recipes', 'RecipesController')
+    .middleware({ show: ['silentAuth'], store: ['auth'], update: ['auth'] })
+    .except(['destroy'])
+    .apiOnly();
 
-  Route.group(() => {
-    Route.resource('users', 'UsersController')
-      .middleware({ show: ['silentAuth'], update: ['auth'] })
-      .only(['show', 'update'])
-      .apiOnly();
-  });
+  Route.get('/search/recipes', 'RecipesController.search');
+
+  Route.resource('users', 'UsersController')
+    .middleware({ show: ['silentAuth'], update: ['auth'] })
+    .only(['show', 'update'])
+    .apiOnly();
 
   Route.get('/users/:id/recipes', 'UsersController.getUserRecipes')
     .middleware('silentAuth');
+
+  Route.resource('favorites', 'FavoritesController')
+    .middleware({ index: ['auth'], store: ['auth'], destroy: ['auth'] })
+    .except(['show', 'update'])
+    .apiOnly();
 
   Route.resource('recipes.comments', 'CommentsController')
     .middleware({ store: ['auth'], update: ['auth'] })
