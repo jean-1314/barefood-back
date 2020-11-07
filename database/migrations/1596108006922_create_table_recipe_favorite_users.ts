@@ -10,6 +10,7 @@ export default class CreateTableRecipeFavoriteUsers extends BaseSchema {
       table.integer('recipe_id');
       table.foreign('user_id').references('id').inTable('users');
       table.foreign('recipe_id').references('id').inTable('recipes');
+      table.unique(['user_id', 'recipe_id']);
     });
   }
 

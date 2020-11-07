@@ -46,12 +46,24 @@ export default class RecipesController {
   public async show ({ params, auth }: HttpContextContract) {
     let isAuthor = false;
     const isAuthenticated = auth.isAuthenticated;
+    const currentUser = await auth.user;
 
     const recipe = await Recipe
       .query()
       .from('recipes')
-      .select('id', 'name', 'slug', 'image', 'ingredients', 'steps', 'info', 'is_hidden', 'author_id')
-      .where('id', params.id)
+      .select(
+        'recipes.id',
+        'name',
+        'slug',
+        'image',
+        'ingredients',
+        'steps',
+        'info',
+        'is_hidden',
+        'author_id',
+        'f.user_id as is_favorite')
+      .joinRaw(`left join recipe_favorite_user f on recipes.id = f.recipe_id and f.user_id = ${currentUser?.id || 0}`)
+      .where('recipes.id', params.id)
       .first();
 
     if (isAuthenticated) {
@@ -79,6 +91,7 @@ export default class RecipesController {
       steps,
       info,
       isHidden,
+      isFavorite: recipe.isFavorite === currentUser?.id,
       categories,
       user: { id: user.id, name: user.name, avatar: user.avatar },
     };

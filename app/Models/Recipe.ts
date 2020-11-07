@@ -42,6 +42,9 @@ export default class Recipe extends BaseModel {
   @column()
   public authorId: number
 
+  @column()
+  public isFavorite: number
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
