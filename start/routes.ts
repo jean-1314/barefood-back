@@ -62,6 +62,8 @@ Route.group(() => {
   Route
     .get('/me', 'AuthController.me')
     .middleware('auth');
+
+  Route.get('/418', async () => 'I am a teapot');
 })
   .prefix('/api/v1');
 
