@@ -63,7 +63,7 @@ Route.group(() => {
     .get('/me', 'AuthController.me')
     .middleware('auth');
 
-  Route.get('/418', async () => 'I am a teapot');
+  Route.get('/418', async () => 'I am a teapot, yeah');
 })
   .prefix('/api/v1');
 
